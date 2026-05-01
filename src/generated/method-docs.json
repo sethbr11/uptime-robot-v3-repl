@@ -1,0 +1,749 @@
+{
+  "incidents.activityLog": {
+    "summary": "Fetches a chronological log of all activities and status changes related to an incident, including when it started, escalated, was acknowledged, and resolved.",
+    "params": [
+      {
+        "name": "id",
+        "description": "Incident ID (number or string)"
+      }
+    ],
+    "example": "// Get incident activity log\nconst activityLog = await service.incidents.activityLog(12345);\nactivityLog.activities.forEach(activity => {\n  console.log(`${activity.timestamp}: ${activity.action}`);\n});"
+  },
+  "incidents.createComment": {
+    "summary": "Adds a comment to an existing incident for documentation or communication purposes. Comments help track incident resolution progress and team communication.",
+    "params": [
+      {
+        "name": "id",
+        "description": "Incident ID (number or string)"
+      },
+      {
+        "name": "payload",
+        "description": "Comment data (see IncidentCommentPayload interface)"
+      }
+    ],
+    "example": "// Add a comment to an incident\nconst success = await service.incidents.createComment(12345, {\n  content: 'Investigating the root cause of this outage',\n});"
+  },
+  "incidents.deleteComment": {
+    "summary": "Removes a specific comment from an incident. This action cannot be undone. Only the comment author or account administrators can delete comments.",
+    "params": [
+      {
+        "name": "id",
+        "description": "Incident ID (number or string)"
+      },
+      {
+        "name": "commentId",
+        "description": "Comment ID (number or string)"
+      }
+    ],
+    "example": "// Delete a comment\nconst success = await service.incidents.deleteComment(12345, 67890);\nif (success) {\n  console.log('Comment deleted successfully');\n}"
+  },
+  "incidents.get": {
+    "summary": "Fetches complete information about an individual incident by ID, including start/end times, duration, affected monitor, status changes, and resolution details.",
+    "params": [
+      {
+        "name": "id",
+        "description": "Incident ID (number or string)"
+      }
+    ],
+    "example": "// Get incident details\nconst incident = await service.incidents.get(12345);\nconsole.log(`Incident lasted ${incident.duration} seconds`);\nconsole.log(`Status: ${incident.status}`);"
+  },
+  "incidents.list": {
+    "summary": "Retrieves a list of incidents (downtime events) from your UptimeRobot account. You can filter by monitor, date range, or search by monitor name. Results are paginated using cursor-based pagination.",
+    "params": [
+      {
+        "name": "filter",
+        "description": "Query string parameters passed to the API"
+      },
+      {
+        "name": "filter.cursor",
+        "description": "Pagination cursor for next page"
+      },
+      {
+        "name": "filter.monitor_id",
+        "description": "Filter by specific monitor ID"
+      },
+      {
+        "name": "filter.monitor_name",
+        "description": "Search incidents by monitor name (partial match)"
+      },
+      {
+        "name": "filter.started_after",
+        "description": "Filter incidents that started after this date (ISO 8601 format)"
+      },
+      {
+        "name": "filter.started_before",
+        "description": "Filter incidents that started before this date (ISO 8601 format)"
+      }
+    ],
+    "example": "// Get all incidents\nconst incidents = await service.incidents.list();\n\n// Filter by monitor and date range\nconst recentIncidents = await service.incidents.list({\n  monitor_id: 12345,\n  started_after: '2023-10-01T00:00:00Z',\n  started_before: '2023-10-31T23:59:59Z'\n});\n\n// Paginate through results\nconst page1 = await service.incidents.list();\nconst page2 = await service.incidents.list({ cursor: 123456789 });\n\n// Get full response for pagination\nconst response = await service.incidents.list({ monitor_name: 'cool-monitor' }, true);\nconst nextUrl = new URL(response.nextLink);\nconst nextCursorVal = nextUrl.searchParams.get('cursor');\nconsole.log(nextCursorVal);"
+  },
+  "incidents.listComments": {
+    "summary": "Fetches all comments posted on an incident, useful for tracking incident communication and updates. Results are paginated and can be limited.",
+    "params": [
+      {
+        "name": "id",
+        "description": "Incident ID (string)"
+      },
+      {
+        "name": "filter",
+        "description": "Optional pagination and limit parameters"
+      },
+      {
+        "name": "filter.cursor",
+        "description": "Pagination cursor for next page"
+      },
+      {
+        "name": "filter.limit",
+        "description": "Maximum number of comments to return (minimum 1)"
+      }
+    ],
+    "example": "// Get all comments for an incident\nconst comments = await service.incidents.listComments('incident_123');\n\n// Get limited number of comments\nconst recentComments = await service.incidents.listComments('incident_123', {\n  limit: 10\n});\n\n// Paginate through results\nconst page1 = await service.incidents.listComments('incident_123');\nconst page2 = await service.incidents.listComments('incident_123', { cursor: 123456789 });\n\n// Get full response for pagination\nconst response = await service.incidents.listComments('incident_123', { limit: 50 }, true);\nconst nextUrl = new URL(response.nextLink);\nconst nextCursorVal = nextUrl.searchParams.get('cursor');\nconsole.log(nextCursorVal);"
+  },
+  "incidents.sentAlerts": {
+    "summary": "Fetches information about all alerts (email, SMS, webhook, etc.) that were sent during an incident, including delivery status and timestamps.",
+    "params": [
+      {
+        "name": "id",
+        "description": "Incident ID (number or string)"
+      }
+    ],
+    "example": "// Get incident alert history\nconst alerts = await service.incidents.sentAlerts(12345);\nconsole.log(`${alerts.totalSent} alerts sent during incident`);\nalerts.sentAlerts.forEach(alert => {\n  console.log(`${alert.type}: ${alert.status} at ${alert.sentAt}`);\n});"
+  },
+  "incidents.updateComment": {
+    "summary": "Modifies the content of an existing incident comment. Only the comment author or account administrators can update comments. Changes are logged with timestamps.",
+    "params": [
+      {
+        "name": "id",
+        "description": "Incident ID (number or string)"
+      },
+      {
+        "name": "commentId",
+        "description": "Comment ID (number or string)"
+      },
+      {
+        "name": "payload",
+        "description": "Updated comment data (partial IncidentCommentPayload object)"
+      }
+    ],
+    "example": "// Update a comment message\nconst updatedComment = await service.incidents.updateComment(12345, 67890, {\n  content: 'Updated: Root cause identified as database connection timeout',\n});"
+  },
+  "integrations.create": {
+    "summary": "Creates a new third-party integration in your UptimeRobot account. Supports various integration types including Slack, Discord, PagerDuty, webhooks, and more. The integration will be active immediately after creation.",
+    "params": [
+      {
+        "name": "payload",
+        "description": "Integration configuration object (see IntegrationPayload interface for all options)"
+      }
+    ],
+    "example": "// Create a Slack integration\nconst slackIntegration = await service.integrations.create({\n  name: 'Team Alerts',\n  type: 'slack',\n  url: 'https://hooks.slack.com/services/...',\n  isActive: true\n});"
+  },
+  "integrations.delete": {
+    "summary": "Removes an integration completely from your UptimeRobot account. This action cannot be undone. Any monitors using this integration will no longer send notifications through it.",
+    "params": [
+      {
+        "name": "id",
+        "description": "Integration ID (number or string)"
+      }
+    ],
+    "example": "// Delete an integration\nconst success = await service.integrations.delete((12345);\nif (success) {\n  console.log('Integration deleted successfully');\n}"
+  },
+  "integrations.get": {
+    "summary": "Fetches complete configuration and status information for an individual integration by ID. Returns all integration properties including type, URL, credentials, and current status.",
+    "params": [
+      {
+        "name": "id",
+        "description": "Integration ID (number or string)"
+      }
+    ],
+    "example": "// Get integration details\nconst integration = await service.integrations.get(12345);\nconsole.log(`Integration \"${integration.name}\" is ${integration.isActive ? 'active' : 'inactive'}`);"
+  },
+  "integrations.list": {
+    "summary": "Retrieves a list of third-party integrations (Slack, Discord, PagerDuty, etc.) configured in your UptimeRobot account. Results are paginated using cursor-based pagination.",
+    "params": [
+      {
+        "name": "filter",
+        "description": "Query string parameters passed to the API"
+      },
+      {
+        "name": "filter.cursor",
+        "description": "Pagination cursor for next page"
+      }
+    ],
+    "example": "// Get all integrations\nconst integrations = await service.integrations.list();\n\n// Paginate through results\nconst page1 = await service.integrations.list();\nconst page2 = await service.integrations.list({ cursor: 123456789 });\n\n// Get full response for pagination\nconst response = await service.integrations.list({}, true);\nconst nextUrl = new URL(response.nextLink);\nconst nextCursorVal = nextUrl.searchParams.get('cursor');\nconsole.log(nextCursorVal);"
+  },
+  "integrations.update": {
+    "summary": "Modifies the settings of an existing integration. Only provided fields will be updated; omitted fields retain their current values. Changes take effect immediately for future notifications.",
+    "params": [
+      {
+        "name": "id",
+        "description": "Integration ID (number or string)"
+      },
+      {
+        "name": "payload",
+        "description": "Integration configuration updates (partial IntegrationPayload object)"
+      }
+    ],
+    "example": "// Update integration name and status\nconst updatedIntegration = await service.integrations.update((12345, {\n  name: 'Updated Team Alerts',\n  isActive: false\n});\n\n// Update webhook URL\nconst webhookUpdate = await service.integrations.update((12345, {\n  url: 'https://new-webhook-url.com/endpoint'\n});"
+  },
+  "maintenanceWindows.create": {
+    "summary": "Creates a new maintenance window in your UptimeRobot account. During the scheduled maintenance period, affected monitors will not send alert notifications, preventing false alarms during planned downtime.",
+    "params": [
+      {
+        "name": "payload",
+        "description": "Maintenance window configuration object (see MaintenanceWindowPayload interface for all options)"
+      }
+    ],
+    "example": "// Create a maintenance window for server updates\nconst maintenanceWindow = await service.maintenanceWindows.create({\n  friendlyName: 'Server Updates',\n  description: 'Monthly server patching and updates',\n  startDateTime: '2023-11-15T02:00:00Z',\n  duration: 7200, // 2 hours in seconds\n  monitorIds: ['monitor1', 'monitor2']\n});"
+  },
+  "maintenanceWindows.delete": {
+    "summary": "Removes a maintenance window completely from your UptimeRobot account. This action cannot be undone. If the maintenance window is currently active, it will be cancelled immediately.",
+    "params": [
+      {
+        "name": "id",
+        "description": "Maintenance window ID (number or string)"
+      }
+    ],
+    "example": "// Delete a maintenance window\nconst success = await service.maintenanceWindows.delete((12345);\nif (success) {\n  console.log('Maintenance window deleted successfully');\n}"
+  },
+  "maintenanceWindows.get": {
+    "summary": "Fetches complete information about an individual maintenance window by ID, including schedule, affected monitors, status, and configuration details.",
+    "params": [
+      {
+        "name": "id",
+        "description": "Maintenance window ID (number or string)"
+      }
+    ],
+    "example": "// Get maintenance window details\nconst window = await service.maintenanceWindows.get(12345);\nconsole.log(`Window \"${window.friendlyName}\" affects ${window.monitorIds.length} monitors`);"
+  },
+  "maintenanceWindows.list": {
+    "summary": "Retrieves a list of maintenance windows from your UptimeRobot account. Maintenance windows allow you to schedule periods when monitors should not send alerts during planned downtime. Results are paginated using cursor-based pagination.",
+    "params": [
+      {
+        "name": "filter",
+        "description": "Query string parameters passed to the API"
+      },
+      {
+        "name": "filter.cursor",
+        "description": "Pagination cursor for next page"
+      }
+    ],
+    "example": "// Get all maintenance windows\nconst windows = await service.maintenanceWindows.list();\n\n// Paginate through results\nconst page1 = await service.maintenanceWindows.list();\nconst page2 = await service.maintenanceWindows.list({ cursor: 123456789 });\n\n// Get full response for pagination\nconst response = await service.maintenanceWindows.list({}, true);\nconst nextUrl = new URL(response.nextLink);\nconst nextCursorVal = nextUrl.searchParams.get('cursor');\nconsole.log(nextCursorVal);"
+  },
+  "maintenanceWindows.update": {
+    "summary": "Modifies the settings of an existing maintenance window. Only provided fields will be updated; omitted fields retain their current values. Changes take effect according to the new schedule.",
+    "params": [
+      {
+        "name": "id",
+        "description": "Maintenance window ID (number or string)"
+      },
+      {
+        "name": "payload",
+        "description": "Maintenance window configuration updates (partial MaintenanceWindowPayload object)"
+      }
+    ],
+    "example": "// Update maintenance window duration and description\nconst updatedWindow = await service.maintenanceWindows.update((12345, {\n  duration: 10800, // Extend to 3 hours\n  description: 'Extended maintenance for database migration'\n});\n\n// Add more monitors to existing window\nconst expandedWindow = await service.maintenanceWindows.update((12345, {\n  monitorIds: ['monitor1', 'monitor2', 'monitor3', 'monitor4']\n});"
+  },
+  "monitorGroups.create": {
+    "summary": "Creates a new monitor group in your UptimeRobot account for organizing monitors into logical collections. Groups can be used for filtering, reporting, and managing monitors collectively.",
+    "params": [
+      {
+        "name": "payload",
+        "description": "Monitor group configuration object (see MonitorGroupPayload interface for all options)"
+      }
+    ],
+    "example": "// Create a new monitor group\nconst group = await service.monitorGroups.create({\n  name: 'Production APIs',\n  description: 'Critical production API endpoints'\n});"
+  },
+  "monitorGroups.delete": {
+    "summary": "Removes a monitor group completely from your UptimeRobot account. This action cannot be undone. Monitors in the group will not be deleted, but will be removed from the group.",
+    "params": [
+      {
+        "name": "id",
+        "description": "Monitor group ID (number or string)"
+      }
+    ],
+    "example": "// Delete a monitor group\nconst success = await service.monitorGroups.delete((12345);\nif (success) {\n  console.log('Monitor group deleted successfully');\n}"
+  },
+  "monitorGroups.get": {
+    "summary": "Fetches complete information about an individual monitor group by ID, including name, description, associated monitors, and group statistics.",
+    "params": [
+      {
+        "name": "id",
+        "description": "Monitor group ID (number or string)"
+      }
+    ],
+    "example": "// Get monitor group details\nconst group = await service.monitorGroups.get(12345);\nconsole.log(`Group \"${group.name}\" contains ${group.monitorCount} monitors`);"
+  },
+  "monitorGroups.list": {
+    "summary": "Retrieves a list of monitor groups from your UptimeRobot account. Monitor groups help organize monitors into logical collections for easier management and reporting. Results are paginated using cursor-based pagination.",
+    "params": [
+      {
+        "name": "filter",
+        "description": "Query string parameters passed to the API"
+      },
+      {
+        "name": "filter.cursor",
+        "description": "Pagination cursor for next page"
+      }
+    ],
+    "example": "// Get all monitor groups\nconst groups = await service.monitorGroups.list();\n\n// Paginate through results\nconst page1 = await service.monitorGroups.list();\nconst page2 = await service.monitorGroups.list({ cursor: 123456789 });\n\n// Get full response for pagination\nconst response = await service.monitorGroups.list({}, true);\nconst nextUrl = new URL(response.nextLink);\nconst nextCursorVal = nextUrl.searchParams.get('cursor');\nconsole.log(nextCursorVal);"
+  },
+  "monitorGroups.update": {
+    "summary": "Modifies the settings of an existing monitor group. Note: This endpoint only updates the name of the monitor group. Other properties cannot be changed after creation.",
+    "params": [
+      {
+        "name": "id",
+        "description": "Monitor group ID (number or string)"
+      },
+      {
+        "name": "payload",
+        "description": "Monitor group configuration updates (partial MonitorGroupPayload object)"
+      }
+    ],
+    "example": "// Update monitor group name\nconst updatedGroup = await service.monitorGroups.update((12345, {\n  name: 'Updated Production APIs'\n});"
+  },
+  "monitors.bulk.pause": {
+    "summary": "Pause all monitors in the given monitor group.",
+    "params": [
+      {
+        "name": "groupId",
+        "description": "Monitor group ID"
+      }
+    ]
+  },
+  "monitors.bulk.start": {
+    "summary": "Start (resume) all paused monitors in the given monitor group.",
+    "params": [
+      {
+        "name": "groupId",
+        "description": "Monitor group ID"
+      }
+    ]
+  },
+  "monitors.bulk.update": {
+    "summary": "Apply shared setting updates to all monitors in the given monitor group.",
+    "params": []
+  },
+  "monitors.create": {
+    "summary": "Creates a new monitoring endpoint in your UptimeRobot account. The monitor will begin checking immediately after creation. Supports HTTP, KEYWORD, PING, PORT, HEARTBEAT, DNS, and API monitor types.",
+    "params": [
+      {
+        "name": "payload",
+        "description": "Monitor configuration object (see MonitorPayload interface for all options)"
+      }
+    ],
+    "example": "// Create a basic HTTP monitor\nconst httpMonitor = await service.monitors.create({\n  friendlyName: 'My Website',\n  url: 'https://example.com',\n  type: 'HTTP',\n  interval: 300,\n  httpMethodType: 'HEAD'\n});"
+  },
+  "monitors.delete": {
+    "summary": "Removes a monitor completely from your UptimeRobot account. This action cannot be undone. All historical data and statistics for the monitor will be lost.",
+    "params": [
+      {
+        "name": "id",
+        "description": "Monitor ID (number or string)"
+      }
+    ],
+    "example": "// Delete a monitor\nconst success = await service.monitors.delete(12345);\nif (success) {\n  console.log('Monitor deleted successfully');\n}"
+  },
+  "monitors.get": {
+    "summary": "Fetches complete configuration and current status information for an individual monitor by ID. Returns all monitor properties including type, URL, intervals, and current status.",
+    "params": [
+      {
+        "name": "id",
+        "description": "Monitor ID (number or string)"
+      }
+    ],
+    "example": "// Get monitor details\nconst monitor = await service.monitors.get(12345);\nconsole.log(`Monitor \"${monitor.friendlyName}\" is ${monitor.status}`);"
+  },
+  "monitors.getAggregatedUptimeStatistics": {
+    "summary": "Fetches comprehensive uptime statistics for your account within a specified time frame. Supports predefined periods (DAY, WEEK, MONTH, etc.) or custom date ranges. Includes overall uptime percentage and optional detailed logs.",
+    "params": [
+      {
+        "name": "timeFrame",
+        "description": "Time period for statistics ('DAY', 'WEEK', 'MONTH', 'DAYS_30', 'YEAR', 'ALL', 'CUSTOM')"
+      },
+      {
+        "name": "filter",
+        "description": "Optional parameters for customizing the response"
+      },
+      {
+        "name": "filter.logLimit",
+        "description": "Maximum number of log entries to return"
+      },
+      {
+        "name": "filter.start",
+        "description": "Start timestamp for CUSTOM timeFrame (Unix timestamp)"
+      },
+      {
+        "name": "filter.end",
+        "description": "End timestamp for CUSTOM timeFrame (Unix timestamp)"
+      }
+    ],
+    "example": "// Get daily statistics\nconst dailyStats = await service.monitors.getAggregatedUptimeStatistics('DAY');\n\n// Get custom range with limited logs\nconst customStats = await service.monitors.getAggregatedUptimeStatistics('CUSTOM', {\n  start: 1698400000,\n  end: 1698486400,\n  logLimit: 100\n});"
+  },
+  "monitors.getFullList": {
+    "summary": "Retrieves all monitors from the account by automatically handling cursor-based pagination. This method repeatedly calls the API until all pages are retrieved. Useful for synchronization tasks where the complete state is required.",
+    "params": [
+      {
+        "name": "limit",
+        "description": "Page size for each API request when paginating (max 200). Defaults to 50."
+      }
+    ],
+    "example": "const allMonitors = await service.monitors.getFullList();\nconsole.log(`Fetched ${allMonitors.length} monitors`);"
+  },
+  "monitors.getResponseTimeStatistics": {
+    "summary": "Fetches detailed response time metrics for an individual monitor within an optional date range. Returns average, minimum, and maximum response times, with optional time series data for graphing.",
+    "params": [
+      {
+        "name": "id",
+        "description": "Monitor ID (number or string)"
+      },
+      {
+        "name": "filter",
+        "description": "Optional parameters for customizing the response"
+      },
+      {
+        "name": "filter.from",
+        "description": "Start date in ISO 8601 format (e.g., '2023-10-27T10:00:00Z')"
+      },
+      {
+        "name": "filter.to",
+        "description": "End date in ISO 8601 format (e.g., '2023-10-28T10:00:00Z')"
+      },
+      {
+        "name": "filter.includeTimeSeries",
+        "description": "Whether to include detailed time series data"
+      },
+      {
+        "name": "filter.region",
+        "description": "Optional region code (`na`, `eu`, `as`, `oc`) or `all` per API; omit for default aggregation"
+      }
+    ],
+    "example": "// Get basic response time stats\nconst stats = await service.monitors.getResponseTimeStatistics(12345);\n\n// Get detailed stats with time series for charting\nconst detailedStats = await service.monitors.getResponseTimeStatistics(12345, {\n  from: '2023-10-01T00:00:00Z',\n  to: '2023-10-31T23:59:59Z',\n  includeTimeSeries: true\n});"
+  },
+  "monitors.getResponseTimeStatisticsByRegion": {
+    "summary": "Fetches response time metrics for a monitor **by region** (NA, EU, AS, OC) plus an `all` aggregate, for an optional date range. Defaults to the last 24 hours; maximum range is 90 days. Optionally includes time series per region block.",
+    "params": [
+      {
+        "name": "id",
+        "description": "Monitor ID (number or string)"
+      },
+      {
+        "name": "filter",
+        "description": "Optional `from` / `to` (ISO 8601) and `includeTimeSeries`"
+      }
+    ]
+  },
+  "monitors.getUptimeStatistics": {
+    "summary": "Fetches detailed uptime statistics for an individual monitor within an optional date range. Returns uptime percentage, total checks, and downtime incidents for the specified period.",
+    "params": [
+      {
+        "name": "id",
+        "description": "Monitor ID (number or string)"
+      },
+      {
+        "name": "filter",
+        "description": "Optional date range parameters"
+      },
+      {
+        "name": "filter.from",
+        "description": "Start date in ISO 8601 format (e.g., '2023-10-27T10:00:00Z')"
+      },
+      {
+        "name": "filter.to",
+        "description": "End date in ISO 8601 format (e.g., '2023-10-28T10:00:00Z')"
+      }
+    ],
+    "example": "// Get all-time uptime for monitor\nconst stats = await service.monitors.getUptimeStatistics(12345);\n\n// Get uptime for specific date range\nconst rangeStats = await service.monitors.getUptimeStatistics(12345, {\n  from: '2023-10-01T00:00:00Z',\n  to: '2023-10-31T23:59:59Z'\n});"
+  },
+  "monitors.list": {
+    "summary": "Retrieves a list of monitors from your UptimeRobot account. You can optionally filter by status, group, or search by name/URL. Results are paginated using cursor-based pagination.",
+    "params": [
+      {
+        "name": "filter",
+        "description": "Query string parameters passed to the API"
+      },
+      {
+        "name": "filter.limit",
+        "description": "Number of monitors to return (1-50, default: 50)"
+      },
+      {
+        "name": "filter.groupId",
+        "description": "Filter by monitor group ID"
+      },
+      {
+        "name": "filter.status",
+        "description": "Filter by status ('UP', 'DOWN', 'PAUSED', etc.)"
+      },
+      {
+        "name": "filter.name",
+        "description": "Search monitors by friendly name (partial match)"
+      },
+      {
+        "name": "filter.url",
+        "description": "Search monitors by URL (partial match)"
+      },
+      {
+        "name": "filter.tags",
+        "description": "Filter by tag names (comma-separated)"
+      },
+      {
+        "name": "filter.cursor",
+        "description": "Pagination cursor for next page"
+      },
+      {
+        "name": "returnFullResponse",
+        "description": "If `true`, returns the full API response object (including pagination metadata). If `false` or omitted, returns just the array of Monitors."
+      }
+    ],
+    "example": "// Get first 10 monitors\nconst monitors = await service.monitors.list({ limit: 10 });\n\n// Filter by status\nconst downMonitors = await service.monitors.list({ status: 'DOWN' });\n\n// Search by name\nconst apiMonitors = await service.monitors.list({ name: 'API' });\n\n// Paginate through results\nconst page1 = await service.monitors.list({ limit: 10 });\nconst page2 = await service.monitors.list({ limit: 10, cursor: 123456789 });\n\n// Get full response for pagination\nconst response = await service.monitors.list({ limit: 50 }, true);\nconst nextUrl = new URL(response.nextLink);\nconst nextCursorVal = nextUrl.searchParams.get('cursor');\nconsole.log(nextCursorVal);"
+  },
+  "monitors.pause": {
+    "summary": "Temporarily stops monitoring checks for the specified monitor without deleting it. The monitor can be resumed later using {@link Monitors.start}. Useful for maintenance windows or temporary service shutdowns.",
+    "params": [
+      {
+        "name": "id",
+        "description": "Monitor ID (number or string)"
+      }
+    ],
+    "example": "// Pause a monitor during maintenance\nconst pausedMonitor = await service.monitors.pause(12345);\nconsole.log(`Monitor status: ${pausedMonitor.status}`);"
+  },
+  "monitors.reset": {
+    "summary": "Clears all historical data, statistics, and logs for the specified monitor while keeping the monitor configuration intact. The monitor continues running but starts fresh with no historical data.",
+    "params": [
+      {
+        "name": "id",
+        "description": "Monitor ID (number or string)"
+      }
+    ],
+    "example": "// Reset monitor statistics\nconst success = await service.monitors.reset(12345);\nif (success) {\n  console.log('Monitor statistics reset successfully');\n}"
+  },
+  "monitors.start": {
+    "summary": "Starts monitoring checks for a previously paused monitor. The monitor will immediately begin checking according to its configured interval and settings.",
+    "params": [
+      {
+        "name": "id",
+        "description": "Monitor ID (number or string)"
+      }
+    ],
+    "example": "// Resume a paused monitor\nconst activeMonitor = await service.monitors.start(12345);\nconsole.log(`Monitor status: ${activeMonitor.status}`);"
+  },
+  "monitors.update": {
+    "summary": "Modifies the settings of an existing monitor. Only provided fields will be updated; omitted fields retain their current values. The monitor continues running with the new configuration immediately.",
+    "params": [
+      {
+        "name": "id",
+        "description": "Monitor ID (number or string)"
+      },
+      {
+        "name": "payload",
+        "description": "Monitor configuration updates (partial MonitorPayload object)"
+      }
+    ],
+    "example": "// Update monitor interval and friendly name\nconst updatedMonitor = await service.monitors.update(12345, {\n  friendlyName: 'Updated Website Name',\n  interval: 600\n});"
+  },
+  "psps.announcements.create": {
+    "summary": "Creates a new announcement that will be displayed on the specified public status page. Announcements can be used to communicate maintenance windows, incidents, or general updates to users.",
+    "params": [
+      {
+        "name": "pspId",
+        "description": "Public status page ID (number or string)"
+      },
+      {
+        "name": "payload",
+        "description": "Announcement configuration object (see PSPAnnouncementPayload interface for all options)"
+      }
+    ],
+    "example": "// Create a maintenance announcement\nconst announcement = await service.psps.announcements.create(12345, {\n  title: 'Scheduled Maintenance',\n  message: 'We will be performing scheduled maintenance on Sunday at 2 AM UTC.',\n  status: 'PUBLISHED',\n  isPinned: true,\n  scheduledFor: '2023-11-05T02:00:00Z'\n});"
+  },
+  "psps.announcements.get": {
+    "summary": "Fetches complete information about an individual announcement by ID, including title, message, status, publish dates, and visibility settings.",
+    "params": [
+      {
+        "name": "pspId",
+        "description": "Public status page ID (number or string)"
+      },
+      {
+        "name": "id",
+        "description": "Announcement ID (number or string)"
+      }
+    ],
+    "example": "// Get announcement details\nconst announcement = await service.psps.announcements.get(12345, 67890);\nconsole.log(`Announcement \"${announcement.title}\" is ${announcement.status}`);"
+  },
+  "psps.announcements.list": {
+    "summary": "Retrieves a list of announcements posted on a public status page. You can filter by status (offline, pending, published, archived) and paginate through results.",
+    "params": [
+      {
+        "name": "pspId",
+        "description": "Public status page ID (number or string)"
+      },
+      {
+        "name": "filter",
+        "description": "Optional filtering and pagination parameters"
+      },
+      {
+        "name": "filter.status",
+        "description": "Filter by announcement status ('OFFLINE', 'PENDING', 'PUBLISHED', 'ARCHIVED')"
+      },
+      {
+        "name": "filter.cursor",
+        "description": "Pagination cursor for next page"
+      }
+    ],
+    "example": "// Get all announcements for a status page\nconst announcements = await service.psps.announcements.list(12345);\n\n// Filter by published announcements only\nconst published = await service.psps.announcements.list(12345, {\n  status: 'PUBLISHED'\n});\n\n// Paginate through results\nconst page1 = await service.psps.announcements.list(12345);\nconst page2 = await service.psps.announcements.list(12345, { cursor: 123456789 });\n\n// Get full response for pagination\nconst response = await service.psps.announcements.list(12345, { status: 'PUBLISHED' }, true);\nconst nextUrl = new URL(response.nextLink);\nconst nextCursorVal = nextUrl.searchParams.get('cursor');\nconsole.log(nextCursorVal);"
+  },
+  "psps.announcements.pin": {
+    "summary": "Pins a specific announcement to make it appear prominently at the top of the status page. Pinned announcements remain visible above other content to ensure important messages are seen first.",
+    "params": [
+      {
+        "name": "pspId",
+        "description": "Public status page ID (number or string)"
+      },
+      {
+        "name": "id",
+        "description": "Announcement ID (number or string)"
+      }
+    ],
+    "example": "// Pin an important announcement\nconst success = await service.psps.announcements.pin(12345, 67890);\nif (success) {\n  console.log('Announcement pinned successfully');\n}"
+  },
+  "psps.announcements.unpin": {
+    "summary": "Removes the pinned status from an announcement, allowing it to appear in normal chronological order with other announcements instead of being prominently displayed at the top.",
+    "params": [
+      {
+        "name": "pspId",
+        "description": "Public status page ID (number or string)"
+      },
+      {
+        "name": "id",
+        "description": "Announcement ID (number or string)"
+      }
+    ],
+    "example": "// Unpin an announcement\nconst success = await service.psps.announcements.unpin(12345, 67890);\nif (success) {\n  console.log('Announcement unpinned successfully');\n}"
+  },
+  "psps.announcements.update": {
+    "summary": "Modifies the settings of an existing announcement. Only provided fields will be updated; omitted fields retain their current values. Changes take effect immediately on the status page.",
+    "params": [
+      {
+        "name": "pspId",
+        "description": "Public status page ID (number or string)"
+      },
+      {
+        "name": "id",
+        "description": "Announcement ID (number or string)"
+      },
+      {
+        "name": "payload",
+        "description": "Announcement configuration updates (partial PSPAnnouncementPayload object)"
+      }
+    ],
+    "example": "// Update announcement status and message\nconst updatedAnnouncement = await service.psps.announcements.update(12345, 67890, {\n  message: 'Maintenance completed successfully. All services are now operational.',\n  status: 'ARCHIVED'\n});"
+  },
+  "psps.create": {
+    "summary": "Creates a new public status page in your UptimeRobot account. The status page will be live immediately after creation.",
+    "params": [
+      {
+        "name": "payload",
+        "description": "PSP configuration object (see PSPPayload interface for all options)"
+      }
+    ],
+    "example": "// Create a password-protected status page with two monitors\nconst httpMonitor = await service.psps.create({\n  friendlyName: 'My PSP',\n  monitorIds: ['id-1', 'id-2'],\n  logo: './images/logo.png',\n  password: 'securepassword'\n});"
+  },
+  "psps.delete": {
+    "summary": "Removes a public status page completely from your UptimeRobot account. This action cannot be undone. The status page URL will become inaccessible immediately.",
+    "params": [
+      {
+        "name": "id",
+        "description": "PSP ID (number or string)"
+      }
+    ],
+    "example": "// Delete a status page\nconst success = await service.psps.delete(12345);\nif (success) {\n  console.log('Status page deleted successfully');\n}"
+  },
+  "psps.get": {
+    "summary": "Fetches complete configuration and current information for an individual public status page by ID. Returns all PSP properties including friendly name, monitors, customization settings, and access details.",
+    "params": [
+      {
+        "name": "id",
+        "description": "PSP ID (number or string)"
+      }
+    ],
+    "example": "// Get PSP details\nconst psp = await service.psps.get(12345);\nconsole.log(`Status page \"${psp.friendlyName}\" has ${psp.monitorIds.length} monitors`);"
+  },
+  "psps.list": {
+    "summary": "Retrieves a list of public status pages (PSPs) from your UptimeRobot account. Results are paginated using cursor-based pagination.",
+    "params": [
+      {
+        "name": "options",
+        "description": "Query string parameters passed to the API"
+      },
+      {
+        "name": "options.cursor",
+        "description": "Pagination cursor for next page"
+      }
+    ],
+    "example": "// Get status pages\nconst psps = await service.psps.list();\n\n// Paginate through results\nconst page1 = await service.psps.list();\nconst page2 = await service.psps.list({ cursor: 123456789 });\n\n// Get full response for pagination\nconst response = await service.psps.list({}, true);\nconst nextUrl = new URL(response.nextLink);\nconst nextCursorVal = nextUrl.searchParams.get('cursor');\nconsole.log(nextCursorVal);"
+  },
+  "psps.update": {
+    "summary": "Modifies the settings of an existing public status page. Only provided fields will be updated; omitted fields retain their current values. Changes take effect immediately on the live status page.",
+    "params": [
+      {
+        "name": "id",
+        "description": "PSP ID (number or string)"
+      },
+      {
+        "name": "payload",
+        "description": "PSP configuration updates (partial PSPPayload object)"
+      }
+    ],
+    "example": "// Update status page name and add monitors\nconst updatedPSP = await service.psps.update(12345, {\n  friendlyName: 'Updated Status Page',\n  monitorIds: ['monitor1', 'monitor2', 'monitor3']\n});\n\n// Update with new logo image\nconst pspWithLogo = await service.psps.update(12345, {\n  logo: './images/new-logo.png'\n});"
+  },
+  "tags.delete": {
+    "summary": "Removes a custom tag completely from your UptimeRobot account. This action cannot be undone. The tag will be removed from all monitors that currently use it.",
+    "params": [
+      {
+        "name": "id",
+        "description": "Tag ID (number or string)"
+      }
+    ],
+    "example": "// Delete a tag\nconst success = await service.tags.delete(12345);\nif (success) {\n  console.log('Tag deleted successfully');\n}"
+  },
+  "tags.list": {
+    "summary": "Retrieves a list of custom tags from your UptimeRobot account. Tags can be used to categorize and filter monitors for better organization and management. Results are paginated using cursor-based pagination.",
+    "params": [
+      {
+        "name": "filter",
+        "description": "Query string parameters passed to the API"
+      },
+      {
+        "name": "filter.cursor",
+        "description": "Pagination cursor for next page"
+      }
+    ],
+    "example": "// Get all user tags\nconst tags = await service.tags.list();\ntags.forEach(tag => {\n  console.log(`Tag: ${tag.name} (used by ${tag.monitorCount} monitors)`);\n});\n\n// Paginate through results\nconst page1 = await service.tags.list();\nconst page2 = await service.tags.list({ cursor: 123456789 });\n\n// Get full response for pagination\nconst response = await service.tags.list({}, true);\nconst nextUrl = new URL(response.nextLink);\nconst nextCursorVal = nextUrl.searchParams.get('cursor');\nconsole.log(nextCursorVal);"
+  },
+  "tools.buildUtcCalendarDayRanges": {
+    "summary": "Builds UTC calendar day ranges for a given number of days and a given timestamp.",
+    "params": [
+      {
+        "name": "dayCount",
+        "description": "The number of days to build the ranges for."
+      },
+      {
+        "name": "nowMs",
+        "description": "The timestamp to build the ranges for."
+      }
+    ]
+  },
+  "users.getAlertContacts": {
+    "summary": "Fetches a list of alert contacts (email, SMS, webhook, etc.) configured in the user's account. These contacts can be used for monitor notifications and alerts.",
+    "params": [],
+    "example": "// Get all alert contacts\nconst contacts = await service.users.getAlertContacts();\ncontacts.forEach(contact => {\n  console.log(`${contact.type}: ${contact.value} (${contact.status})`);\n});"
+  },
+  "users.getAllAlertContacts": {
+    "summary": "Fetches detailed information about all alert contacts including their usage statistics, associated monitors, and configuration details. Provides more comprehensive data than {@link Users#getAlertContacts | getAlertContacts()}.",
+    "params": [],
+    "example": "// Get detailed alert contact information\nconst detailedContacts = await service.users.getAllAlertContacts();\ndetailedContacts.forEach(contact => {\n  console.log(`${contact.type}: ${contact.value}`);\n  console.log(`Associated monitors: ${contact.monitorCount}`);\n});"
+  },
+  "users.me": {
+    "summary": "Fetches detailed information about the authenticated user's UptimeRobot account, including email, plan details, monitor limits, and account status.",
+    "params": [],
+    "example": "// Get current user info\nconst user = await service.users.me();\nconsole.log(`Account: ${user.email} (${user.planType})`);\nconsole.log(`Monitor limit: ${user.monitorLimit}`);"
+  }
+}

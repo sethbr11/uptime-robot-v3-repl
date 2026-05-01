@@ -1,0 +1,49 @@
+{
+  "name": "uptime-robot-v3-repl",
+  "version": "1.0.0",
+  "description": "Interactive Node REPL for exploring the Uptime Robot API via uptime-robot-v3.",
+  "license": "ISC",
+  "author": "Seth Brock",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "bin": {
+    "ur-repl": "./dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "generate:docs": "node scripts/extract-method-docs.mjs",
+    "clean": "node scripts/clean-dist.mjs",
+    "prebuild": "npm run generate:docs",
+    "build": "npm run clean && tsc -p tsconfig.json",
+    "prepack": "npm run build",
+    "pretest": "npm run build",
+    "test": "vitest run",
+    "start": "node dist/cli.js"
+  },
+  "keywords": [
+    "uptimerobot",
+    "uptime-robot",
+    "repl",
+    "cli"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sethbr11/uptime-robot-v3-repl.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sethbr11/uptime-robot-v3-repl/issues"
+  },
+  "homepage": "https://github.com/sethbr11/uptime-robot-v3-repl#readme",
+  "dependencies": {
+    "uptime-robot-v3": "^1.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.9.0",
+    "vitest": "^4.1.5"
+  }
+}

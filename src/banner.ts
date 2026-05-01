@@ -1,0 +1,17 @@
+import { ansi } from './ansi.js';
+
+/** Large “UPTIMEROBOT” header + tag line (matches legacy REPL styling). */
+export function printBanner(): void {
+  console.log(`
+${ansi.green(`██╗   ██╗██████╗ ████████╗██╗███╗   ███╗███████╗██████╗  ██████╗ ██████╗  ██████╗ ████████╗`)}
+${ansi.green(`██║   ██║██╔══██╗╚══██╔══╝██║████╗ ████║██╔════╝██╔══██╗██╔═══██╗██╔══██╗██╔═══██╗╚══██╔══╝`)}
+${ansi.green(`██║   ██║██████╔╝   ██║   ██║██╔████╔██║█████╗  ██████╔╝██║   ██║██████╔╝██║   ██║   ██║   `)}
+${ansi.green(`██║   ██║██╔═══╝    ██║   ██║██║╚██╔╝██║██╔══╝  ██╔══██╗██║   ██║██╔══██╗██║   ██║   ██║   `)}
+${ansi.green(`╚██████╔╝██║        ██║   ██║██║ ╚═╝ ██║███████╗██║  ██║╚██████╔╝██████╔╝╚██████╔╝   ██║   `)}
+${ansi.green(` ╚═════╝ ╚═╝        ╚═╝   ╚═╝╚═╝     ╚═╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚═════╝  ╚═════╝    ╚═╝   `)}
+`);
+  console.log(ansi.cyan('💡 UptimeRobot service (API v3) available as "service"'));
+  console.log(ansi.cyan('💡 Type help() for resource & method index; help("list") to search methods'));
+  console.log(ansi.cyan('💡 Type .exit or press Ctrl+D to exit'));
+  console.log(ansi.gray('───────────────────────────────────'));
+}
