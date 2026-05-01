@@ -44,7 +44,7 @@ npm run generate:docs
 This runs automatically before each `npm run build` (`prebuild`).
 
 - **`help()`** — each method shows a **short local description** (truncated); one footer line with your TypeDoc base URL.
-- **`help("create")`** etc. — **full paragraph** from the same source, then the TypeDoc URL for signatures/examples.
+- **`help("monitors.create")`** etc. — **full paragraph** from the same source, then the TypeDoc URL for signatures/examples.
 
 Override the docs base with **`UPTIMEROBOT_DOCS_BASE`** if needed.
 
